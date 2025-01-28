@@ -24,7 +24,7 @@ export default class ObjectAdder{
         this.gltfloader = new GLTFLoader();
         this.fbxLoader = new FBXLoader();
         this._animationHandler = animationHandler;
-        this._mixer;
+        this._mixer = null;
     }
     addCube(object:ObjectInfo) : void{
         
@@ -186,19 +186,27 @@ export default class ObjectAdder{
                 c.castShadow= true;
                 fbx.receiveShadow = true;
             });
-            fbx.scale.setScalar(0.1);
+            fbx.scale.setScalar(0.02);
+            this._animationHandler.setPlayerObject(fbx);
             
 
-          this.fbxLoader.load( 'characters/Running.fbx', ( object ) => {
+          this.fbxLoader.load( 'characters/Idle.fbx', ( object ) => {
             this._mixer = new THREE.AnimationMixer(fbx);
             
             
             const idleClip = object.animations[0]; // Assuming the first animation is idle
 
-            const idleAction = this._mixer.clipAction(idleClip); // Create a ClipAction object
+            const idleAction = this._mixer.clipAction(idleClip); 
             this._animationHandler.setMixer(this._mixer);
-            idleAction.play();
+            this._animationHandler.addAnimation("idle", idleClip);
+
+          
+
+          this.fbxLoader.load( 'characters/Walking.fbx', ( object ) => {
             
+            
+            const idleClip = object.animations[0]; 
+            this._animationHandler.addAnimation("walk", idleClip);
 
           }, 
           // onProgress callback (optional)
@@ -209,9 +217,56 @@ export default class ObjectAdder{
           ( error ) => {
             console.error( error );
           } );
+
+          this.fbxLoader.load( 'characters/Running2.fbx', ( object ) => {
+           
+            
+            
+            const idleClip = object.animations[0]; // Assuming the first animation is idle
+
+            this._animationHandler.addAnimation("run", idleClip);
+
+          }, 
+          // onProgress callback (optional)
+          ( xhr ) => {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+          }, 
+          // onError callback
+          ( error ) => {
+            console.error( error );
+          } );
+
+          this.fbxLoader.load( 'characters/Jump2.fbx', ( object ) => {
+           
+            
+            
+            const idleClip = object.animations[0]; // Assuming the first animation is idle
+            
+            this._animationHandler.addAnimation("jump", idleClip);
+
+          }, 
+          // onProgress callback (optional)
+          ( xhr ) => {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+          }, 
+          // onError callback
+          ( error ) => {
+            console.error( error );
+          } );
+
+          
           this.threeEnvironment.scene.add( fbx ); 
           
-
+          idleAction.play();
+        }, 
+        // onProgress callback (optional)
+        ( xhr ) => {
+          console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        }, 
+        // onError callback
+        ( error ) => {
+          console.error( error );
+        } );
 
         
     }, 

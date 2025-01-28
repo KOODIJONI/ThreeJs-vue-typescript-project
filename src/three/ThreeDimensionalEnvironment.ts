@@ -25,7 +25,7 @@ export default class ThreeDimensionalEnvironment {
       this.animationHandler = new AnimationHandler();
       this._mixer = SetupScene(this.ammoInstance,this.physicsWorld,this.threeEnviroment,this.animationHandler);
       setupSceneLighting(this.threeEnviroment);
-      this.cameraControl = new CameraControl(this.ammoInstance, this.threeEnviroment.camera,this.threeEnviroment.scene, this.physicsWorld);
+      this.cameraControl = new CameraControl(this.ammoInstance, this.threeEnviroment.camera,this.threeEnviroment.scene, this.physicsWorld, this.animationHandler);
       this.cameraControl.setupControls();
       this.threeEnviroment.camera.position.set(1,1,100);
       this.keys = {};

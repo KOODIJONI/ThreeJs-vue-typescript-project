@@ -7,6 +7,7 @@ export default class CameraControl {
     readonly physicsWorld: any;
     readonly camera: THREE.PerspectiveCamera;
     readonly rbCamera: any;
+    animationhandler_ : any;
 
     private keys: Record<string, boolean>;
     private lastSpacePress: number;
@@ -27,26 +28,31 @@ export default class CameraControl {
         camera: THREE.PerspectiveCamera,
         
         scene: THREE.Scene,
-        physicsWorld: any
+        physicsWorld: any,
+        animationhandler: any
     ) {
         this.AmmoInstance = AmmoInstance;
+        this.animationhandler_ = animationhandler;
         this.scene = scene;
         this.physicsWorld = physicsWorld;
         this.camera = camera;
-        const cameraGeometry = new THREE.BoxGeometry(1, 0.3, 1);
-        const cameraMaterial = new THREE.MeshStandardMaterial();
+        const cameraGeometry = new THREE.BoxGeometry(1, 4.3, 1);
+        const cameraMaterial =new THREE.MeshBasicMaterial({
+            color: 0x000000, // Color doesn't matter since it's invisible
+            transparent: true,
+            opacity: 0
+          });
         this.cameraMesh = new THREE.Mesh(cameraGeometry, cameraMaterial);
         this.cameraMesh.position.set(0, 1, 5);
-        this.cameraMesh.receiveShadow = false;
-        this.cameraMesh.castShadow = true;
+      
         this.scene.add(this.cameraMesh);
-        this.offset = new THREE.Vector3(0, 2, 0);
+        this.offset = new THREE.Vector3(0, 5, 10);
         this.rbCamera = new RigidBody(
         this.AmmoInstance,
         10,
         this.cameraMesh.position,
         this.cameraMesh.quaternion,
-        new THREE.Vector3(1, 0.3, 1)
+        new THREE.Vector3(1, 4.3, 1)
         ,"cube"
         );
 
@@ -87,6 +93,7 @@ export default class CameraControl {
     }
 
     public updateCameraPosition(): void {
+        
         
         const currentTime = Date.now();
         this.force.setValue(0, 0, 0);
@@ -142,6 +149,7 @@ export default class CameraControl {
             if (currentTime - this.lastSpacePress >= 1000) {
                 this.force.setValue(this.force.x(), 8000, this.force.z());
                 this.lastSpacePress = currentTime;
+                this.animationhandler_.jump();
             }
         }
         
@@ -158,11 +166,25 @@ export default class CameraControl {
         const pitchQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.pitch);
 
         this.rotation.copy(yawQuat).multiply(pitchQuat);
-        this.camera.quaternion.copy(this.rotation);
+
+        const velocity = this.rbCamera.body_.getLinearVelocity();
+
+        // Extract x, y, z components
+        const x = velocity.x();
+        const y = velocity.y();
+        const z = velocity.z();
+        
+        // Calculate the magnitude (amplitude)
+        const magnitude = Math.sqrt(x * x + y * y + z * z);
+        
+        this.animationhandler_.selectAnimationByVelocity(magnitude,yawQuat,this.cameraMesh.position);
+        
+
+        this.AmmoInstance.destroy(velocity);
     }
 
     private calculateCameraFacingPosition(): THREE.Vector3 {
-        this.camera.getWorldDirection(this.tempDirection);
+        this.animationhandler_._animatedPlayer.getWorldDirection(this.tempDirection);
         return this.tempDirection.normalize();
     }
 

@@ -10,10 +10,10 @@ export default function setupSceneLighting(threeEnvironment_: any){
             
             dirLight.shadow.camera.near = 0.1;   
             dirLight.shadow.camera.far = 200;    
-            dirLight.shadow.camera.left = -50;   
-            dirLight.shadow.camera.right = 50;   
-            dirLight.shadow.camera.top = 50;     
-            dirLight.shadow.camera.bottom = -50; 
+            dirLight.shadow.camera.left = -100;   
+            dirLight.shadow.camera.right = 100;   
+            dirLight.shadow.camera.top = 100;     
+            dirLight.shadow.camera.bottom = -100; 
     
             dirLight.shadow.mapSize.width = 2048;   
             dirLight.shadow.mapSize.height = 2048;
