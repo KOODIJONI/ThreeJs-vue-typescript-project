@@ -241,7 +241,6 @@ export default class ObjectAdder{
             
             
             const idleClip = object.animations[0]; // Assuming the first animation is idle
-            
             this._animationHandler.addAnimation("jump", idleClip);
 
           }, 

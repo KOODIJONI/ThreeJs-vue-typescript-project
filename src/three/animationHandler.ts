@@ -32,13 +32,26 @@ export default class AnimationHandler{
       playAnimation(name: string) {
         const action = this._animations[name];
         if (!action) {
-          throw new Error(`Animation '${name}' not found. Add it first using addAnimation().`);
+            return;
         }
+        
+        // If there's already a current animation, we want to fade it out before playing the new one
+        if (this._currentAnimation) {
+            const currentAction = this._animations[this._currentAnimation];
+            if (currentAction) {
+                // Crossfade to the new animation
+                currentAction.fadeOut(2); // Fade out the current animation first
+            }
+        }
+    
         this._currentAnimation = name;
-        // Play the animation action
-        action.reset(); // Ensure it starts from the beginning
-        action.play();
-      }
+        const newAction = action;
+    
+        // Now, set up the new action
+        newAction.reset(); // Reset the new action if you want it to start from the beginning
+        newAction.fadeIn(0.5); // Fade in the new action
+        newAction.play();
+    }
     
       stopAnimation(name: string) {
         if (this._animations[name]) {
@@ -64,7 +77,7 @@ export default class AnimationHandler{
         const xRotation = new THREE.Quaternion();
         xRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(180));
         this._animatedPlayer.position.lerp(position.add(this.Playeroffset), 0.4)
-
+        
         const currentQuaternion = new THREE.Quaternion().copy(angle);
 
         this._animatedPlayer.quaternion.copy(currentQuaternion.multiply(xRotation));
@@ -76,7 +89,6 @@ export default class AnimationHandler{
         } else {
             targetAnimation = "run";
         }
-    
         // Only switch animations if the target animation is different
         if (this._currentAnimation !== targetAnimation&&!this._isJumping
         ) {
@@ -87,23 +99,22 @@ export default class AnimationHandler{
             if (previousAnimation&&this._animations[targetAnimation]) {
                 const prevAction = this._animations[previousAnimation];
                 const newAction = this._animations[targetAnimation];
-    
-                // Set blending options
-                newAction.reset();
-                newAction.crossFadeFrom(prevAction, 0.5, true); // 0.5 seconds blend duration
-                newAction.play();
-            } else {
-                // If there's no previous animation, simply play the new animation
-                this.playAnimation(targetAnimation);
                 
-            }
+                // Set blending options
+                if(newAction){
+                newAction.reset();
+                console.log(newAction,prevAction);
+                newAction.crossFadeFrom(prevAction, 0.1, true);
+                newAction.play();
+                }
+            } 
         }
 
         }
     }
     jump() {
         if (!this._animations["jump"]) {
-            throw new Error("Jump animation is not defined. Add it first using addAnimation().");
+            return;
         }
     
         if (this._isJumping) {
@@ -112,37 +123,35 @@ export default class AnimationHandler{
             return;
         }
     
+        if (this._currentAnimation && this._animations[this._currentAnimation]) {
+            const currentAction = this._animations[this._currentAnimation];
+            currentAction.fadeOut(0.3); // Smoothly transition out of previous animation
+        }
         // Set the jumping flag
         this._isJumping = true;
     
         // Save the current animation to return to later
-        const previousAnimation = this._currentAnimation;
         this._currentAnimation = "jump";
     
         // Play the jump animation
         const jumpAction = this._animations["jump"];
         jumpAction.setEffectiveTimeScale(1);
         jumpAction.reset().play();
-        jumpAction.setLoop(THREE.LoopOnce);
-        
     
         // Get the duration of the jump animation
         const jumpDuration = jumpAction.getClip().duration;
-    
+        jumpAction.loop = THREE.LoopOnce; 
         // After the jump animation ends, reset the flag and return to the previous animation
         setTimeout(() => {
-            if (this._currentAnimation === "jump") {
-                // Prevent override during jump, return to previous animation
-                this._currentAnimation = previousAnimation;
-                this.playAnimation(previousAnimation || "idle");
-                console.log(previousAnimation);
-            }
-    
+            
+        
             // Reset the jumping flag
             this._isJumping = false;
-            
-        }, jumpDuration * 1500); // Convert duration to milliseconds
+        
+        }, jumpDuration * 1500); // Correct duration handling (in ms)
+        
     }
+    
     
     
 }

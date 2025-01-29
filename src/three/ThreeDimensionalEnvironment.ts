@@ -14,6 +14,7 @@ export default class ThreeDimensionalEnvironment {
     cameraControl: InstanceType<typeof CameraControl>;
     clock: InstanceType<typeof THREE.Clock>;
     animationHandler: InstanceType<typeof AnimationHandler>
+    sceneLighting: InstanceType<typeof setupSceneLighting>
     keys: { [key: string]: boolean } = {};
     _mixer: any;
     constructor(ammo: any,element: HTMLElement) {
@@ -24,7 +25,7 @@ export default class ThreeDimensionalEnvironment {
       this.clock = new THREE.Clock();
       this.animationHandler = new AnimationHandler();
       this._mixer = SetupScene(this.ammoInstance,this.physicsWorld,this.threeEnviroment,this.animationHandler);
-      setupSceneLighting(this.threeEnviroment);
+      this.sceneLighting = new setupSceneLighting(this.threeEnviroment,this.threeEnviroment.camera);
       this.cameraControl = new CameraControl(this.ammoInstance, this.threeEnviroment.camera,this.threeEnviroment.scene, this.physicsWorld, this.animationHandler);
       this.cameraControl.setupControls();
       this.threeEnviroment.camera.position.set(1,1,100);
@@ -51,6 +52,7 @@ export default class ThreeDimensionalEnvironment {
               this.physicsWorld.update();
               this.threeEnviroment.render(); 
               this.animationHandler.updateAnimation(0.01);
+              this.sceneLighting.update();
               
           };
       

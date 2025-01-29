@@ -24,6 +24,7 @@ export default class ThreeJsEnvironment {
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1; 
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        
 
         
         container.appendChild(this.renderer.domElement);

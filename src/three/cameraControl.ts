@@ -146,8 +146,8 @@ export default class CameraControl {
         this.pitch = Math.max(this.MIN_PITCH, Math.min(this.MAX_PITCH, this.pitch));
 
         if (this.keys[' ']) {
-            if (currentTime - this.lastSpacePress >= 1000) {
-                this.force.setValue(this.force.x(), 8000, this.force.z());
+            if (currentTime - this.lastSpacePress >= 1500) {
+                this.force.setValue(this.force.x(), 6500, this.force.z());
                 this.lastSpacePress = currentTime;
                 this.animationhandler_.jump();
             }
